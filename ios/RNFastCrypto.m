@@ -14,6 +14,40 @@
     return dispatch_queue_create("io.exodus.RNFastCrypto.MainQueue", qosAttribute);
 }
 
++ (void) handleGetTransactionPoolHashes:(NSString*) method
+                                       :(NSString*) params
+                                       :(RCTPromiseResolveBlock) resolve
+                                       :(RCTPromiseRejectBlock) reject {
+    NSData *paramsData = [params dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *jsonError;
+    NSDictionary *jsonParams = [NSJSONSerialization JSONObjectWithData:paramsData options:kNilOptions error:&jsonError];
+
+    NSString *addr = jsonParams[@"url"];
+    NSURL *url = [NSURL URLWithString:addr];
+
+    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:url];
+    [urlRequest setHTTPMethod:@"POST"];
+    [urlRequest setTimeoutInterval: 5];
+
+    NSURLSession *session = [NSURLSession sharedSession];
+
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:urlRequest completionHandler: ^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error) {
+            resolve(@"{\"err_msg\":\"Network request failed\"}");
+            return;
+        }
+
+        char *pszResult = NULL;
+
+        get_transaction_pool_hashes(data.bytes, data.length, &pszResult);
+
+        NSString *jsonResult = [NSString stringWithUTF8String:pszResult];
+        free(pszResult);
+        resolve(jsonResult);
+    }];
+    [task resume];
+}
+
 + (void) handleDownloadAndProcess:(NSString*) method
                                  :(NSString*) params
                                  :(RCTPromiseResolveBlock) resolve
@@ -85,6 +119,8 @@ RCT_REMAP_METHOD(moneroCore, :(NSString*) method
 {
     if ([method isEqualToString:@"download_and_process"]) {
         [RNFastCrypto handleDownloadAndProcess:method :params :resolve :reject];
+    } else if ([method isEqualToString:@"get_transaction_pool_hashes"]) {
+        [RNFastCrypto handleGetTransactionPoolHashes:method :params :resolve :reject];
     } else {
         [RNFastCrypto handleDefault:method :params :resolve :reject];
     }
