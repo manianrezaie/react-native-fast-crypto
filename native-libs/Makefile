@@ -25,6 +25,10 @@ T ?= 0
 ifeq ($T, 1)
 	CXXFLAGS += -I$(PREFIX)/native/include
 	LDFLAGS += -L$(PREFIX)/native/lib
+
+	ifeq ($(shell uname -s),Linux)
+		LIBS += -lbsd
+	endif
 endif
 
 # Source files:
