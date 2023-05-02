@@ -61,6 +61,6 @@ sudo ln -sf $(brew --prefix python)/bin/python3 /usr/local/bin/python
 
 ```bash
 git clone git@github.com:ExodusMovement/react-native-fast-crypto.git
-cd react-native-fast-crypto && yarn build
+cd react-native-fast-crypto
 yarn build
 ```
