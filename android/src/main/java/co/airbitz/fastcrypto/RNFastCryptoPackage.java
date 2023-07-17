@@ -16,6 +16,10 @@ public class RNFastCryptoPackage implements ReactPackage {
     public RNFastCryptoPackage(String userAgent) {
         this.userAgent = userAgent;
     }
+    
+    public RNFastCryptoPackage() {
+        this.userAgent = "None";
+    }
 
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
